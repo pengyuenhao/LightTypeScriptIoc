@@ -1,0 +1,38 @@
+{
+  "name": "ioc",
+  "publisher": "vscode",
+  "description": "%description%",
+  "displayName": "%displayName%",
+  "version": "1.0.0",
+  "icon": "images/ioc.png",
+  "engines": {
+    "vscode": "*"
+  },
+  "categories": [
+    "Other"
+  ],
+  "scripts": {},
+  "dependencies": {
+    "typescript": "^3.1.3"
+  },
+  "devDependencies": {
+    "browserify": "^16.2.3",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-minify": "^3.1.0",
+    "gulp-order": "^1.2.0",
+    "minify": "^3.0.5",
+    "tsify": "^4.0.0",
+    "vinyl-source-stream": "^2.0.0"
+  },
+  "main": "./out/myIoc",
+  "activationEvents": [],
+  "contributes": {
+    "configuration": {
+      "id": "myIoc",
+      "type": "object",
+      "title": "MyIoc",
+      "properties": {}
+    }
+  }
+}
