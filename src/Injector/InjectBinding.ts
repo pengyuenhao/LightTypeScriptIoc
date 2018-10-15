@@ -21,17 +21,17 @@ namespace ioc {
             public get isValueConstructor(){
                 return this._isValueConstructor;
             } */
-        public get isInject() {
+        public isInject() {
             return this._isInject;
         }
         //参数列表
-        public get args() {
+        public getArgs() {
             return this._args;
         }
-        public get bindingType() {
+        public getBindingType() {
             return this._bindingType;
         }
-        public get isUnbind() {
+        public isUnbind() {
             return this._isUnbind;
         }
         /**

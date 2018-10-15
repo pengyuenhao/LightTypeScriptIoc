@@ -11,7 +11,7 @@ namespace ioc {
     const ClassBinder = DecoratorConst.DECORATOR_CLASS_BINDER;
 
     export interface IInjectBinder extends IBinder {
-        injector: Injector;
+        getInjector(): Injector;
         getInstance(key, name): any;
         getBinding(key, name): InjectBinding;
         bind(key: any): InjectBinding;
@@ -27,14 +27,15 @@ namespace ioc {
     }
     export class InjectBinder extends Binder implements IInjectBinder {
         //注入器
-        private _injector: Injector;
-        constructor() {
-            super();
+        private _injector: Injector ;
+
+        public init(){
+            super.init();
             this._injector = new Injector();
             this._injector.binder = this;
             this._injector.injectClassBinder = ClassBinder;
         }
-        public get injector(): Injector {
+        public getInjector(): Injector {
             return this._injector;
         }
         //绑定状态映射字典
@@ -70,7 +71,7 @@ namespace ioc {
             let unbinds = [];
             (this._bindings as Map < any, Map < any, InjectBinding >> ).forEach(dict => {
                 dict.forEach(binding => {
-                    if (binding.isUnbind) {
+                    if (binding.isUnbind()) {
                         unbinds.push(binding);
                     }
                 })

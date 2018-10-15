@@ -8,6 +8,9 @@ namespace ioc {
      * 可以创建单例
      */
     export class InjectFactory {
+        constructor(){
+
+        }
         /**
          * 根据绑定状态和指定的参数创建或获取实例对象
          * @param binding 绑定状态
@@ -19,14 +22,14 @@ namespace ioc {
                 throw new Error("InjectorFactory cannot act on null binding");
             }
             //判断注入状态类型
-            let bindingType: InjectConst.BindingType = binding.bindingType;
+            let bindingType: InjectConst.BindingType = binding.getBindingType();
             //根据不同的类型创建
             switch (bindingType) {
                 case InjectConst.BindingType.SINGLETON:
                     return this.singletonOf(binding, args);
                     break;
                 case InjectConst.BindingType.VALUE:
-                    return this.valueOf(binding);
+                    return this.getValueOf(binding);
                     break;
                 default:
                     break;
@@ -77,7 +80,7 @@ namespace ioc {
             }
             return binding.value;
         }
-        protected valueOf(binding: InjectBinding) {
+        protected getValueOf(binding: InjectBinding) {
             return binding.value;
         }
     }

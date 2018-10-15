@@ -60,7 +60,7 @@ namespace ioc {
         }
         //重新释放
         public restore() {
-            this.injectBinder.injector.uninject(this);
+            this.injectBinder.getInjector().uninject(this);
             this.clean();
         }
         //执行指令

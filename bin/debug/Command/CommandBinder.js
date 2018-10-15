@@ -128,7 +128,7 @@ var ioc;
                 if (command) {
                     //检查是否已经清理
                     if (command.isClean) {
-                        this.injectBinder.injector.inject(command, null);
+                        this.injectBinder.getInjector().inject(command, null);
                         command.deploy();
                     }
                 }

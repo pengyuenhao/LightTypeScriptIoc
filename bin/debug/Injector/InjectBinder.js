@@ -38,19 +38,17 @@ var ioc;
     var InjectBinder = /** @class */ (function (_super) {
         __extends(InjectBinder, _super);
         function InjectBinder() {
-            var _this = _super.call(this) || this;
-            _this._injector = new ioc.Injector();
-            _this._injector.binder = _this;
-            _this._injector.injectClassBinder = ClassBinder;
-            return _this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
-        Object.defineProperty(InjectBinder.prototype, "injector", {
-            get: function () {
-                return this._injector;
-            },
-            enumerable: true,
-            configurable: true
-        });
+        InjectBinder.prototype.init = function () {
+            _super.prototype.init.call(this);
+            this._injector = new ioc.Injector();
+            this._injector.binder = this;
+            this._injector.injectClassBinder = ClassBinder;
+        };
+        InjectBinder.prototype.getInjector = function () {
+            return this._injector;
+        };
         //绑定状态映射字典
         InjectBinder.prototype.getInstance = function (key, name) {
             //如果未设置别名则使用默认设置
@@ -85,7 +83,7 @@ var ioc;
             var unbinds = [];
             this._bindings.forEach(function (dict) {
                 dict.forEach(function (binding) {
-                    if (binding.isUnbind) {
+                    if (binding.isUnbind()) {
                         unbinds.push(binding);
                     }
                 });

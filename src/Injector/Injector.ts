@@ -9,9 +9,9 @@ import { Binding } from "../Bind/Binding";
 namespace ioc {
 
     export class Injector {
-        public factory: InjectFactory;
-        public binder: InjectBinder;
-        public injectClassBinder: DecoratorClassBinder;
+        public factory: InjectFactory = null;
+        public binder: InjectBinder = null;
+        public injectClassBinder: DecoratorClassBinder = null;
 
         constructor() {
             this.factory = new InjectFactory();
@@ -64,7 +64,7 @@ namespace ioc {
             //如果没有直接赋值实例并且存在构造函数
             if (!instance && constructor) {
                 //参数
-                let args = binding.args;
+                let args = binding.getArgs();
                 instance = this.factory.get(binding, args);
                 //如果尝试在这里直接注入
                 if (tryInjectHere) {
@@ -76,11 +76,11 @@ namespace ioc {
         public tryInject(binding: InjectBinding, target: any) {
             //如果工厂不能创建实例则这里直接返回
             if (target != null) {
-                if (binding.isInject) {
+                if (binding.isInject()) {
                     target = this.inject(target, false);
                 }
 
-                if (binding.bindingType == InjectConst.BindingType.SINGLETON || binding.bindingType == InjectConst.BindingType.VALUE) {
+                if (binding.getBindingType() == InjectConst.BindingType.SINGLETON || binding.getBindingType() == InjectConst.BindingType.VALUE) {
                     //prevent double-injection
                     binding.toInject(false);
                 }
@@ -137,9 +137,9 @@ namespace ioc {
             //if(binding.key.name)console.info("[获取注入值]"+binding.key.name+"[别名]"+name+"[绑定状态]"+binding.bindingType + ","+binding.isInject);
             //else console.info("[获取注入值]"+binding.key+"[别名]"+name+"[绑定状态]"+binding.bindingType + "[需要注入]"+binding.isInject);
             //如果是值类型绑定
-            if (binding.bindingType === InjectConst.BindingType.VALUE) {
+            if (binding.getBindingType() === InjectConst.BindingType.VALUE) {
                 //如果需要注入
-                if (binding.isInject) {
+                if (binding.isInject()) {
                     //if(Binding.isConstructor(binding.value))console.info("[对值(构造函数))]"+binding.value.constructor.name + "[进行注入]");
                     //else console.info("[对值(对象)]"+binding.value.__proto__.constructor + "[进行注入]");
 
@@ -154,7 +154,7 @@ namespace ioc {
                     return binding.value;
                 }
                 //如果是单例注入
-            } else if (binding.bindingType == InjectConst.BindingType.SINGLETON) {
+            } else if (binding.getBindingType() == InjectConst.BindingType.SINGLETON) {
                 //如果绑定状态的值是一个构造函数
                 if (binding.isValueConstructor || binding.value == null) {
                     this.instantiate(binding, true);

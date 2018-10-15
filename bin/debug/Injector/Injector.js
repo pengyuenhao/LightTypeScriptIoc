@@ -10,6 +10,9 @@ var ioc;
 (function (ioc) {
     var Injector = /** @class */ (function () {
         function Injector() {
+            this.factory = null;
+            this.binder = null;
+            this.injectClassBinder = null;
             this.factory = new ioc.InjectFactory();
         }
         Injector.prototype.uninject = function (target) {
@@ -63,7 +66,7 @@ var ioc;
             //如果没有直接赋值实例并且存在构造函数
             if (!instance && constructor) {
                 //参数
-                var args = binding.args;
+                var args = binding.getArgs();
                 instance = this.factory.get(binding, args);
                 //如果尝试在这里直接注入
                 if (tryInjectHere) {
@@ -75,10 +78,10 @@ var ioc;
         Injector.prototype.tryInject = function (binding, target) {
             //如果工厂不能创建实例则这里直接返回
             if (target != null) {
-                if (binding.isInject) {
+                if (binding.isInject()) {
                     target = this.inject(target, false);
                 }
-                if (binding.bindingType == "Singleton" /* SINGLETON */ || binding.bindingType == "Value" /* VALUE */) {
+                if (binding.getBindingType() == "Singleton" /* SINGLETON */ || binding.getBindingType() == "Value" /* VALUE */) {
                     //prevent double-injection
                     binding.toInject(false);
                 }
@@ -137,9 +140,9 @@ var ioc;
             //if(binding.key.name)console.info("[获取注入值]"+binding.key.name+"[别名]"+name+"[绑定状态]"+binding.bindingType + ","+binding.isInject);
             //else console.info("[获取注入值]"+binding.key+"[别名]"+name+"[绑定状态]"+binding.bindingType + "[需要注入]"+binding.isInject);
             //如果是值类型绑定
-            if (binding.bindingType === "Value" /* VALUE */) {
+            if (binding.getBindingType() === "Value" /* VALUE */) {
                 //如果需要注入
-                if (binding.isInject) {
+                if (binding.isInject()) {
                     //if(Binding.isConstructor(binding.value))console.info("[对值(构造函数))]"+binding.value.constructor.name + "[进行注入]");
                     //else console.info("[对值(对象)]"+binding.value.__proto__.constructor + "[进行注入]");
                     var injv = this.inject(binding.value, false);
@@ -153,7 +156,7 @@ var ioc;
                 }
                 //如果是单例注入
             }
-            else if (binding.bindingType == "Singleton" /* SINGLETON */) {
+            else if (binding.getBindingType() == "Singleton" /* SINGLETON */) {
                 //如果绑定状态的值是一个构造函数
                 if (binding.isValueConstructor || binding.value == null) {
                     this.instantiate(binding, true);

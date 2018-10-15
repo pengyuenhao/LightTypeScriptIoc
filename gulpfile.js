@@ -15,6 +15,7 @@ gulp.task('default', function () {
 		//	ignoreFiles: ['.combo.js', '-min.js']
 		//}))
 		.pipe(order([
+			"Stack.js",
 			"IocConst.js",
 			"Prototype.js",
 			"Bind/Binding.js",
@@ -28,6 +29,7 @@ gulp.task('default', function () {
 			"Injector/InjectBinding.js",
 			"Injector/InjectBinder.js",
 			"Injector/InjectDecorator.js",
+			"Pool.js",
 			"Command/ICommandBinder.js",
 			"Command/CommandConst.js",
 			"Command/CommandBinding.js",

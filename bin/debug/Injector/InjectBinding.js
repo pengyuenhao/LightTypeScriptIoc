@@ -26,45 +26,29 @@ var ioc;
             _this._isInject = true;
             return _this;
         }
-        Object.defineProperty(InjectBinding.prototype, "isInject", {
-            /*     //键值是否为构造函数
-                protected _isKeyConstructor = false;
-                //值是否为构造函数
-                protected _isValueConstructor = false; */
-            /*     public get isKeyConstructor(){
-                    return this._isKeyConstructor;
-                }
-                public get isValueConstructor(){
-                    return this._isValueConstructor;
-                } */
-            get: function () {
-                return this._isInject;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(InjectBinding.prototype, "args", {
-            //参数列表
-            get: function () {
-                return this._args;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(InjectBinding.prototype, "bindingType", {
-            get: function () {
-                return this._bindingType;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(InjectBinding.prototype, "isUnbind", {
-            get: function () {
-                return this._isUnbind;
-            },
-            enumerable: true,
-            configurable: true
-        });
+        /*     //键值是否为构造函数
+            protected _isKeyConstructor = false;
+            //值是否为构造函数
+            protected _isValueConstructor = false; */
+        /*     public get isKeyConstructor(){
+                return this._isKeyConstructor;
+            }
+            public get isValueConstructor(){
+                return this._isValueConstructor;
+            } */
+        InjectBinding.prototype.isInject = function () {
+            return this._isInject;
+        };
+        //参数列表
+        InjectBinding.prototype.getArgs = function () {
+            return this._args;
+        };
+        InjectBinding.prototype.getBindingType = function () {
+            return this._bindingType;
+        };
+        InjectBinding.prototype.isUnbind = function () {
+            return this._isUnbind;
+        };
         /**
          * 参数列表
          */

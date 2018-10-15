@@ -21,14 +21,14 @@ var ioc;
                 throw new Error("InjectorFactory cannot act on null binding");
             }
             //判断注入状态类型
-            var bindingType = binding.bindingType;
+            var bindingType = binding.getBindingType();
             //根据不同的类型创建
             switch (bindingType) {
                 case "Singleton" /* SINGLETON */:
                     return this.singletonOf(binding, args);
                     break;
                 case "Value" /* VALUE */:
-                    return this.valueOf(binding);
+                    return this.getValueOf(binding);
                     break;
                 default:
                     break;
@@ -83,7 +83,7 @@ var ioc;
             }
             return binding.value;
         };
-        InjectFactory.prototype.valueOf = function (binding) {
+        InjectFactory.prototype.getValueOf = function (binding) {
             return binding.value;
         };
         return InjectFactory;

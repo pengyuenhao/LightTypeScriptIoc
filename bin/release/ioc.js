@@ -1,5 +1,104 @@
 var ioc;
 (function (ioc) {
+    var Item = /** @class */ (function () {
+        function Item(value, next) {
+            if (next === void 0) { next = null; }
+            this._value = value;
+            this._next = next;
+        }
+        Object.defineProperty(Item.prototype, "value", {
+            get: function () {
+                return this._value;
+            },
+            set: function (value) {
+                this._value = value;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Item.prototype, "next", {
+            get: function () {
+                return this._next;
+            },
+            set: function (next) {
+                this._next = next;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Item;
+    }());
+    ioc.Item = Item;
+    var Stack = /** @class */ (function () {
+        function Stack() {
+            this._size = 0;
+            this._header = new Item(null);
+        }
+        Stack.prototype.top = function () {
+            if (this._size === 0) {
+                return null;
+            }
+            return this._header.next.value;
+        };
+        /**
+         * 入栈
+         * @param item 添加的元素
+         * 将header的下一个元素的引用赋值给新元素的next
+         * 再将新元素赋值给header的next
+         */
+        Stack.prototype.push = function (item) {
+            var newItem = new Item(item);
+            newItem.next = this._header.next;
+            this._header.next = newItem;
+            this._size++;
+        };
+        /**
+         * 出栈
+         * 将header之后的第一个元素移除
+         * 同时修改header的next到下一个元素
+         */
+        Stack.prototype.pop = function () {
+            if (this._size === 0) {
+                return null;
+            }
+            var item = this._header.next;
+            this._header.next = item.next;
+            this._size--;
+            item.next = null; //清除引用
+            return item.value;
+        };
+        Stack.prototype.clear = function () {
+            var item;
+            var tmp = this._header;
+            while (this._size !== 0) {
+                item = tmp.next;
+                tmp = item;
+                item.next = null;
+                this._size--;
+            }
+            this._header = null;
+        };
+        Object.defineProperty(Stack.prototype, "isEmpty", {
+            get: function () {
+                return this._size === 0;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Stack.prototype, "size", {
+            get: function () {
+                return this._size;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Stack;
+    }());
+    ioc.Stack = Stack;
+})(ioc || (ioc = {}));
+//# sourceMappingURL=Stack.js.map
+var ioc;
+(function (ioc) {
     var IocError;
     (function (IocError) {
         IocError.IC_ERROR = "can't implement class that is only as interface";
@@ -676,14 +775,14 @@ var ioc;
                 throw new Error("InjectorFactory cannot act on null binding");
             }
             //判断注入状态类型
-            var bindingType = binding.bindingType;
+            var bindingType = binding.getBindingType();
             //根据不同的类型创建
             switch (bindingType) {
                 case "Singleton" /* SINGLETON */:
                     return this.singletonOf(binding, args);
                     break;
                 case "Value" /* VALUE */:
-                    return this.valueOf(binding);
+                    return this.getValueOf(binding);
                     break;
                 default:
                     break;
@@ -738,7 +837,7 @@ var ioc;
             }
             return binding.value;
         };
-        InjectFactory.prototype.valueOf = function (binding) {
+        InjectFactory.prototype.getValueOf = function (binding) {
             return binding.value;
         };
         return InjectFactory;
@@ -758,6 +857,9 @@ var ioc;
 (function (ioc) {
     var Injector = /** @class */ (function () {
         function Injector() {
+            this.factory = null;
+            this.binder = null;
+            this.injectClassBinder = null;
             this.factory = new ioc.InjectFactory();
         }
         Injector.prototype.uninject = function (target) {
@@ -811,7 +913,7 @@ var ioc;
             //如果没有直接赋值实例并且存在构造函数
             if (!instance && constructor) {
                 //参数
-                var args = binding.args;
+                var args = binding.getArgs();
                 instance = this.factory.get(binding, args);
                 //如果尝试在这里直接注入
                 if (tryInjectHere) {
@@ -823,10 +925,10 @@ var ioc;
         Injector.prototype.tryInject = function (binding, target) {
             //如果工厂不能创建实例则这里直接返回
             if (target != null) {
-                if (binding.isInject) {
+                if (binding.isInject()) {
                     target = this.inject(target, false);
                 }
-                if (binding.bindingType == "Singleton" /* SINGLETON */ || binding.bindingType == "Value" /* VALUE */) {
+                if (binding.getBindingType() == "Singleton" /* SINGLETON */ || binding.getBindingType() == "Value" /* VALUE */) {
                     //prevent double-injection
                     binding.toInject(false);
                 }
@@ -885,9 +987,9 @@ var ioc;
             //if(binding.key.name)console.info("[获取注入值]"+binding.key.name+"[别名]"+name+"[绑定状态]"+binding.bindingType + ","+binding.isInject);
             //else console.info("[获取注入值]"+binding.key+"[别名]"+name+"[绑定状态]"+binding.bindingType + "[需要注入]"+binding.isInject);
             //如果是值类型绑定
-            if (binding.bindingType === "Value" /* VALUE */) {
+            if (binding.getBindingType() === "Value" /* VALUE */) {
                 //如果需要注入
-                if (binding.isInject) {
+                if (binding.isInject()) {
                     //if(Binding.isConstructor(binding.value))console.info("[对值(构造函数))]"+binding.value.constructor.name + "[进行注入]");
                     //else console.info("[对值(对象)]"+binding.value.__proto__.constructor + "[进行注入]");
                     var injv = this.inject(binding.value, false);
@@ -901,7 +1003,7 @@ var ioc;
                 }
                 //如果是单例注入
             }
-            else if (binding.bindingType == "Singleton" /* SINGLETON */) {
+            else if (binding.getBindingType() == "Singleton" /* SINGLETON */) {
                 //如果绑定状态的值是一个构造函数
                 if (binding.isValueConstructor || binding.value == null) {
                     this.instantiate(binding, true);
@@ -945,45 +1047,29 @@ var ioc;
             _this._isInject = true;
             return _this;
         }
-        Object.defineProperty(InjectBinding.prototype, "isInject", {
-            /*     //键值是否为构造函数
-                protected _isKeyConstructor = false;
-                //值是否为构造函数
-                protected _isValueConstructor = false; */
-            /*     public get isKeyConstructor(){
-                    return this._isKeyConstructor;
-                }
-                public get isValueConstructor(){
-                    return this._isValueConstructor;
-                } */
-            get: function () {
-                return this._isInject;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(InjectBinding.prototype, "args", {
-            //参数列表
-            get: function () {
-                return this._args;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(InjectBinding.prototype, "bindingType", {
-            get: function () {
-                return this._bindingType;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(InjectBinding.prototype, "isUnbind", {
-            get: function () {
-                return this._isUnbind;
-            },
-            enumerable: true,
-            configurable: true
-        });
+        /*     //键值是否为构造函数
+            protected _isKeyConstructor = false;
+            //值是否为构造函数
+            protected _isValueConstructor = false; */
+        /*     public get isKeyConstructor(){
+                return this._isKeyConstructor;
+            }
+            public get isValueConstructor(){
+                return this._isValueConstructor;
+            } */
+        InjectBinding.prototype.isInject = function () {
+            return this._isInject;
+        };
+        //参数列表
+        InjectBinding.prototype.getArgs = function () {
+            return this._args;
+        };
+        InjectBinding.prototype.getBindingType = function () {
+            return this._bindingType;
+        };
+        InjectBinding.prototype.isUnbind = function () {
+            return this._isUnbind;
+        };
         /**
          * 参数列表
          */
@@ -1081,19 +1167,17 @@ var ioc;
     var InjectBinder = /** @class */ (function (_super) {
         __extends(InjectBinder, _super);
         function InjectBinder() {
-            var _this = _super.call(this) || this;
-            _this._injector = new ioc.Injector();
-            _this._injector.binder = _this;
-            _this._injector.injectClassBinder = ClassBinder;
-            return _this;
+            return _super !== null && _super.apply(this, arguments) || this;
         }
-        Object.defineProperty(InjectBinder.prototype, "injector", {
-            get: function () {
-                return this._injector;
-            },
-            enumerable: true,
-            configurable: true
-        });
+        InjectBinder.prototype.init = function () {
+            _super.prototype.init.call(this);
+            this._injector = new ioc.Injector();
+            this._injector.binder = this;
+            this._injector.injectClassBinder = ClassBinder;
+        };
+        InjectBinder.prototype.getInjector = function () {
+            return this._injector;
+        };
         //绑定状态映射字典
         InjectBinder.prototype.getInstance = function (key, name) {
             //如果未设置别名则使用默认设置
@@ -1128,7 +1212,7 @@ var ioc;
             var unbinds = [];
             this._bindings.forEach(function (dict) {
                 dict.forEach(function (binding) {
-                    if (binding.isUnbind) {
+                    if (binding.isUnbind()) {
                         unbinds.push(binding);
                     }
                 });
@@ -1201,6 +1285,225 @@ var ioc;
     }
 })(ioc || (ioc = {}));
 //# sourceMappingURL=InjectDecorator.js.map
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+/* import {Stack} from "./Stack"
+import { IConstructorName } from "./IocConst";
+import {inject} from "./Injector/InjectDecorator";
+import {Prototype} from "./Prototype" */
+var ioc;
+(function (ioc) {
+    var PoolOverflowBehavior;
+    (function (PoolOverflowBehavior) {
+        /// Requesting more than the fixed size will throw an exception.
+        PoolOverflowBehavior[PoolOverflowBehavior["EXCEPTION"] = 0] = "EXCEPTION";
+        /// Requesting more than the fixed size will throw a warning.
+        PoolOverflowBehavior[PoolOverflowBehavior["WARNING"] = 1] = "WARNING";
+        /// Requesting more than the fixed size will return null and not throw an error.
+        PoolOverflowBehavior[PoolOverflowBehavior["IGNORE"] = 2] = "IGNORE";
+    })(PoolOverflowBehavior = ioc.PoolOverflowBehavior || (ioc.PoolOverflowBehavior = {}));
+    var BindingConstraintType;
+    (function (BindingConstraintType) {
+        /// Constrains a SemiBinding to carry no more than one item in its Value
+        BindingConstraintType[BindingConstraintType["ONE"] = 0] = "ONE";
+        /// Constrains a SemiBinding to carry a list of items in its Value
+        BindingConstraintType[BindingConstraintType["MANY"] = 1] = "MANY";
+        /// Instructs the Binding to apply a Pool instead of a SemiBinding
+        BindingConstraintType[BindingConstraintType["POOL"] = 2] = "POOL";
+    })(BindingConstraintType = ioc.BindingConstraintType || (ioc.BindingConstraintType = {}));
+    var PoolInflationType;
+    (function (PoolInflationType) {
+        /// When a dynamic pool inflates, add one to the pool.
+        PoolInflationType[PoolInflationType["INCREMENT"] = 0] = "INCREMENT";
+        /// When a dynamic pool inflates, double the size of the pool
+        PoolInflationType[PoolInflationType["DOUBLE"] = 1] = "DOUBLE";
+    })(PoolInflationType = ioc.PoolInflationType || (ioc.PoolInflationType = {}));
+    var __IC_InstanceProvider = /** @class */ (function () {
+        function __IC_InstanceProvider() {
+        }
+        Object.defineProperty(__IC_InstanceProvider.prototype, "constructorName", {
+            //getInstance<T>() : T{return;} 
+            get: function () {
+                return "IInstanceProvider";
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return __IC_InstanceProvider;
+    }());
+    ioc.__IC_InstanceProvider = __IC_InstanceProvider;
+    var Pool = /** @class */ (function () {
+        function Pool() {
+            /// Stack of instances still in the Pool.
+            this.instancesAvailable = new ioc.Stack();
+            /// A HashSet of the objects checked out of the Pool.
+            this.instancesInUse = new Set();
+        }
+        Pool.prototype.Pool = function () {
+            this.size = 0;
+            this.constraint = BindingConstraintType.POOL;
+            this.uniqueValues = true;
+            this.overflowBehavior = PoolOverflowBehavior.EXCEPTION;
+            this.inflationType = PoolInflationType.DOUBLE;
+        };
+        Pool.prototype.bind = function (type) {
+            this.poolType = type;
+        };
+        Pool.prototype.add = function (value) {
+            //检查对象原型是否相同
+            this.failIf(!ioc.Prototype.isProtetype(value, this.poolType), " Pool Type mismatch. Pools must consist of a common concrete type.\n\t\tPool type: " + this.poolType + "\n\t\tMismatch type: " + value);
+            this._instanceCount++;
+            this.instancesAvailable.push(value);
+            return this;
+        };
+        Pool.prototype.addList = function (list) {
+            var _this = this;
+            if (list && list.length > 0) {
+                list.forEach(function (item) {
+                    _this.add(item);
+                });
+            }
+            return this;
+        };
+        Pool.prototype.remove = function (value) {
+            this._instanceCount--;
+            this.removeInstance(value);
+            return this;
+        };
+        Pool.prototype.removeList = function (list) {
+            var _this = this;
+            if (list && list.length > 0) {
+                list.forEach(function (item) {
+                    _this.remove(item);
+                });
+            }
+            return this;
+        };
+        Object.defineProperty(Pool.prototype, "value", {
+            get: function () {
+                return this.getInstance();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Pool.prototype, "instanceCount", {
+            /// The object Type of the first object added to the pool.
+            /// Pool objects must be of the same concrete type. This property enforces that requirement. 
+            get: function () {
+                return this._instanceCount;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Pool.prototype.getInstance = function () {
+            // Is an instance available?
+            if (this.instancesAvailable.size > 0) {
+                var retv = this.instancesAvailable.pop();
+                this.instancesInUse.add(retv);
+                return retv;
+            }
+            var instancesToCreate = 0;
+            //New fixed-size pool. Populate.
+            if (this.size > 0) {
+                if (this.instanceCount == 0) {
+                    //New pool. Add instances.
+                    instancesToCreate = this.size;
+                }
+                else {
+                    //Illegal overflow. Report and return null
+                    this.failIf(this.overflowBehavior == PoolOverflowBehavior.EXCEPTION, "A pool has overflowed its limit.\n\t\tPool type: " + this.poolType);
+                    if (this.overflowBehavior == PoolOverflowBehavior.WARNING) {
+                        //console.warn ("WARNING: A pool has overflowed its limit.\n\t\tPool type: " + this.poolType);
+                    }
+                    return null;
+                }
+            }
+            else {
+                //Zero-sized pools will expand.
+                if (this.instanceCount == 0 || this.inflationType == PoolInflationType.INCREMENT) {
+                    instancesToCreate = 1;
+                }
+                else {
+                    instancesToCreate = this.instanceCount;
+                }
+            }
+            if (instancesToCreate > 0) {
+                this.failIf(this.instanceProvider == null, "A Pool of type: " + this.poolType + " has no instance provider.");
+                for (var a = 0; a < instancesToCreate; a++) {
+                    var newInstance = this.instanceProvider.getInstance(this.poolType);
+                    this.add(newInstance);
+                }
+                return this.getInstance();
+            }
+            //If not, return null
+            return null;
+        };
+        Pool.prototype.returnInstance = function (value) {
+            if (this.instancesInUse.has(value)) {
+                /* if (value extends IPoolable)
+                {
+                    (value as IPoolable).Restore ();
+                } */
+                value.restore();
+                this.instancesInUse.delete(value);
+                this.instancesAvailable.push(value);
+            }
+        };
+        Pool.prototype.clean = function () {
+            this.instancesAvailable.clear();
+            this.instancesInUse = new Set();
+            this._instanceCount = 0;
+        };
+        Object.defineProperty(Pool.prototype, "available", {
+            get: function () {
+                return this.instancesAvailable.size;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Pool.prototype.restore = function () {
+            this.clean();
+            this.size = 0;
+        };
+        Pool.prototype.retain = function () {
+            this.isRetain = true;
+        };
+        Pool.prototype.release = function () {
+            this.isRetain = false;
+        };
+        /// <summary>
+        /// Permanently removes an instance from the Pool
+        /// </summary>
+        /// In the event that the removed Instance is in use, it is removed from instancesInUse.
+        /// Otherwise, it is presumed inactive, and the next available object is popped from
+        /// instancesAvailable.
+        /// <param name="value">An instance to remove permanently from the Pool.</param>
+        Pool.prototype.removeInstance = function (value) {
+            this.failIf(value != this.poolType, "Attempt to remove a instance from a pool that is of the wrong Type:\n\t\tPool type: " + this.poolType.toString() + "\n\t\tInstance type: " + value.toString());
+            if (this.instancesInUse.has(value)) {
+                this.instancesInUse.delete(value);
+            }
+            else {
+                this.instancesAvailable.pop();
+            }
+        };
+        Pool.prototype.failIf = function (condition, message) {
+            if (condition) {
+                throw new Error(message);
+            }
+        };
+        __decorate([
+            ioc.inject(__IC_InstanceProvider)
+        ], Pool.prototype, "instanceProvider", void 0);
+        return Pool;
+    }());
+    ioc.Pool = Pool;
+})(ioc || (ioc = {}));
+//# sourceMappingURL=Pool.js.map
 /* import { CommandBinding } from "./CommandBinding";
 import { IBinding } from "../Bind/Binding";
 import { Binder } from "../Bind/Binder";
@@ -1416,7 +1719,7 @@ var ioc;
                 if (command) {
                     //检查是否已经清理
                     if (command.isClean) {
-                        this.injectBinder.injector.inject(command, null);
+                        this.injectBinder.getInjector().inject(command, null);
                         command.deploy();
                     }
                 }
@@ -1707,7 +2010,7 @@ var ioc;
         });
         //重新释放
         Command.prototype.restore = function () {
-            this.injectBinder.injector.uninject(this);
+            this.injectBinder.getInjector().uninject(this);
             this.clean();
         };
         //执行指令
@@ -1903,225 +2206,6 @@ var ioc;
 })(ioc || (ioc = {}));
 //# sourceMappingURL=DecoratorClass.js.map
 //# sourceMappingURL=InjectConst.js.map
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-/* import {Stack} from "./Stack"
-import { IConstructorName } from "./IocConst";
-import {inject} from "./Injector/InjectDecorator";
-import {Prototype} from "./Prototype" */
-var ioc;
-(function (ioc) {
-    var PoolOverflowBehavior;
-    (function (PoolOverflowBehavior) {
-        /// Requesting more than the fixed size will throw an exception.
-        PoolOverflowBehavior[PoolOverflowBehavior["EXCEPTION"] = 0] = "EXCEPTION";
-        /// Requesting more than the fixed size will throw a warning.
-        PoolOverflowBehavior[PoolOverflowBehavior["WARNING"] = 1] = "WARNING";
-        /// Requesting more than the fixed size will return null and not throw an error.
-        PoolOverflowBehavior[PoolOverflowBehavior["IGNORE"] = 2] = "IGNORE";
-    })(PoolOverflowBehavior = ioc.PoolOverflowBehavior || (ioc.PoolOverflowBehavior = {}));
-    var BindingConstraintType;
-    (function (BindingConstraintType) {
-        /// Constrains a SemiBinding to carry no more than one item in its Value
-        BindingConstraintType[BindingConstraintType["ONE"] = 0] = "ONE";
-        /// Constrains a SemiBinding to carry a list of items in its Value
-        BindingConstraintType[BindingConstraintType["MANY"] = 1] = "MANY";
-        /// Instructs the Binding to apply a Pool instead of a SemiBinding
-        BindingConstraintType[BindingConstraintType["POOL"] = 2] = "POOL";
-    })(BindingConstraintType = ioc.BindingConstraintType || (ioc.BindingConstraintType = {}));
-    var PoolInflationType;
-    (function (PoolInflationType) {
-        /// When a dynamic pool inflates, add one to the pool.
-        PoolInflationType[PoolInflationType["INCREMENT"] = 0] = "INCREMENT";
-        /// When a dynamic pool inflates, double the size of the pool
-        PoolInflationType[PoolInflationType["DOUBLE"] = 1] = "DOUBLE";
-    })(PoolInflationType = ioc.PoolInflationType || (ioc.PoolInflationType = {}));
-    var __IC_InstanceProvider = /** @class */ (function () {
-        function __IC_InstanceProvider() {
-        }
-        Object.defineProperty(__IC_InstanceProvider.prototype, "constructorName", {
-            //getInstance<T>() : T{return;} 
-            get: function () {
-                return "IInstanceProvider";
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return __IC_InstanceProvider;
-    }());
-    ioc.__IC_InstanceProvider = __IC_InstanceProvider;
-    var Pool = /** @class */ (function () {
-        function Pool() {
-            /// Stack of instances still in the Pool.
-            this.instancesAvailable = new ioc.Stack();
-            /// A HashSet of the objects checked out of the Pool.
-            this.instancesInUse = new Set();
-        }
-        Pool.prototype.Pool = function () {
-            this.size = 0;
-            this.constraint = BindingConstraintType.POOL;
-            this.uniqueValues = true;
-            this.overflowBehavior = PoolOverflowBehavior.EXCEPTION;
-            this.inflationType = PoolInflationType.DOUBLE;
-        };
-        Pool.prototype.bind = function (type) {
-            this.poolType = type;
-        };
-        Pool.prototype.add = function (value) {
-            //检查对象原型是否相同
-            this.failIf(!ioc.Prototype.isProtetype(value, this.poolType), " Pool Type mismatch. Pools must consist of a common concrete type.\n\t\tPool type: " + this.poolType + "\n\t\tMismatch type: " + value);
-            this._instanceCount++;
-            this.instancesAvailable.push(value);
-            return this;
-        };
-        Pool.prototype.addList = function (list) {
-            var _this = this;
-            if (list && list.length > 0) {
-                list.forEach(function (item) {
-                    _this.add(item);
-                });
-            }
-            return this;
-        };
-        Pool.prototype.remove = function (value) {
-            this._instanceCount--;
-            this.removeInstance(value);
-            return this;
-        };
-        Pool.prototype.removeList = function (list) {
-            var _this = this;
-            if (list && list.length > 0) {
-                list.forEach(function (item) {
-                    _this.remove(item);
-                });
-            }
-            return this;
-        };
-        Object.defineProperty(Pool.prototype, "value", {
-            get: function () {
-                return this.getInstance();
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Pool.prototype, "instanceCount", {
-            /// The object Type of the first object added to the pool.
-            /// Pool objects must be of the same concrete type. This property enforces that requirement. 
-            get: function () {
-                return this._instanceCount;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Pool.prototype.getInstance = function () {
-            // Is an instance available?
-            if (this.instancesAvailable.size > 0) {
-                var retv = this.instancesAvailable.pop();
-                this.instancesInUse.add(retv);
-                return retv;
-            }
-            var instancesToCreate = 0;
-            //New fixed-size pool. Populate.
-            if (this.size > 0) {
-                if (this.instanceCount == 0) {
-                    //New pool. Add instances.
-                    instancesToCreate = this.size;
-                }
-                else {
-                    //Illegal overflow. Report and return null
-                    this.failIf(this.overflowBehavior == PoolOverflowBehavior.EXCEPTION, "A pool has overflowed its limit.\n\t\tPool type: " + this.poolType);
-                    if (this.overflowBehavior == PoolOverflowBehavior.WARNING) {
-                        //console.warn ("WARNING: A pool has overflowed its limit.\n\t\tPool type: " + this.poolType);
-                    }
-                    return null;
-                }
-            }
-            else {
-                //Zero-sized pools will expand.
-                if (this.instanceCount == 0 || this.inflationType == PoolInflationType.INCREMENT) {
-                    instancesToCreate = 1;
-                }
-                else {
-                    instancesToCreate = this.instanceCount;
-                }
-            }
-            if (instancesToCreate > 0) {
-                this.failIf(this.instanceProvider == null, "A Pool of type: " + this.poolType + " has no instance provider.");
-                for (var a = 0; a < instancesToCreate; a++) {
-                    var newInstance = this.instanceProvider.getInstance(this.poolType);
-                    this.add(newInstance);
-                }
-                return this.getInstance();
-            }
-            //If not, return null
-            return null;
-        };
-        Pool.prototype.returnInstance = function (value) {
-            if (this.instancesInUse.has(value)) {
-                /* if (value extends IPoolable)
-                {
-                    (value as IPoolable).Restore ();
-                } */
-                value.restore();
-                this.instancesInUse.delete(value);
-                this.instancesAvailable.push(value);
-            }
-        };
-        Pool.prototype.clean = function () {
-            this.instancesAvailable.clear();
-            this.instancesInUse = new Set();
-            this._instanceCount = 0;
-        };
-        Object.defineProperty(Pool.prototype, "available", {
-            get: function () {
-                return this.instancesAvailable.size;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Pool.prototype.restore = function () {
-            this.clean();
-            this.size = 0;
-        };
-        Pool.prototype.retain = function () {
-            this.isRetain = true;
-        };
-        Pool.prototype.release = function () {
-            this.isRetain = false;
-        };
-        /// <summary>
-        /// Permanently removes an instance from the Pool
-        /// </summary>
-        /// In the event that the removed Instance is in use, it is removed from instancesInUse.
-        /// Otherwise, it is presumed inactive, and the next available object is popped from
-        /// instancesAvailable.
-        /// <param name="value">An instance to remove permanently from the Pool.</param>
-        Pool.prototype.removeInstance = function (value) {
-            this.failIf(value != this.poolType, "Attempt to remove a instance from a pool that is of the wrong Type:\n\t\tPool type: " + this.poolType.toString() + "\n\t\tInstance type: " + value.toString());
-            if (this.instancesInUse.has(value)) {
-                this.instancesInUse.delete(value);
-            }
-            else {
-                this.instancesAvailable.pop();
-            }
-        };
-        Pool.prototype.failIf = function (condition, message) {
-            if (condition) {
-                throw new Error(message);
-            }
-        };
-        __decorate([
-            ioc.inject(__IC_InstanceProvider)
-        ], Pool.prototype, "instanceProvider", void 0);
-        return Pool;
-    }());
-    ioc.Pool = Pool;
-})(ioc || (ioc = {}));
-//# sourceMappingURL=Pool.js.map
 /* import {IocError, IConstructorName} from "../IocConst" */
 var ioc;
 (function (ioc) {
@@ -2261,102 +2345,3 @@ var ioc;
     ioc.SignalManager = SignalManager;
 })(ioc || (ioc = {}));
 //# sourceMappingURL=SignalManager.js.map
-var ioc;
-(function (ioc) {
-    var Item = /** @class */ (function () {
-        function Item(value, next) {
-            if (next === void 0) { next = null; }
-            this._value = value;
-            this._next = next;
-        }
-        Object.defineProperty(Item.prototype, "value", {
-            get: function () {
-                return this._value;
-            },
-            set: function (value) {
-                this._value = value;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Item.prototype, "next", {
-            get: function () {
-                return this._next;
-            },
-            set: function (next) {
-                this._next = next;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return Item;
-    }());
-    ioc.Item = Item;
-    var Stack = /** @class */ (function () {
-        function Stack() {
-            this._size = 0;
-            this._header = new Item(null);
-        }
-        Stack.prototype.top = function () {
-            if (this._size === 0) {
-                return null;
-            }
-            return this._header.next.value;
-        };
-        /**
-         * 入栈
-         * @param item 添加的元素
-         * 将header的下一个元素的引用赋值给新元素的next
-         * 再将新元素赋值给header的next
-         */
-        Stack.prototype.push = function (item) {
-            var newItem = new Item(item);
-            newItem.next = this._header.next;
-            this._header.next = newItem;
-            this._size++;
-        };
-        /**
-         * 出栈
-         * 将header之后的第一个元素移除
-         * 同时修改header的next到下一个元素
-         */
-        Stack.prototype.pop = function () {
-            if (this._size === 0) {
-                return null;
-            }
-            var item = this._header.next;
-            this._header.next = item.next;
-            this._size--;
-            item.next = null; //清除引用
-            return item.value;
-        };
-        Stack.prototype.clear = function () {
-            var item;
-            var tmp = this._header;
-            while (this._size !== 0) {
-                item = tmp.next;
-                tmp = item;
-                item.next = null;
-                this._size--;
-            }
-            this._header = null;
-        };
-        Object.defineProperty(Stack.prototype, "isEmpty", {
-            get: function () {
-                return this._size === 0;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Object.defineProperty(Stack.prototype, "size", {
-            get: function () {
-                return this._size;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        return Stack;
-    }());
-    ioc.Stack = Stack;
-})(ioc || (ioc = {}));
-//# sourceMappingURL=Stack.js.map
