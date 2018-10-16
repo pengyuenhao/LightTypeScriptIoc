@@ -1,9 +1,9 @@
 /* import {IBinding,Binding} from "../Bind/Binding"
-import {__IC_InjectBinder,IInjectBinder} from "../Injector/InjectBinder";
+import {NInjectBinder,IInjectBinder} from "../Injector/InjectBinder";
 import {CommandBinding} from "./CommandBinding";
 import {ISignal} from "../Signal/Signal"
 import {InjectBinding} from "../Injector/InjectBinding";
-import {ICommand,__IC_Command} from "./Command";
+import {ICommand,NCommand} from "./Command";
 import {Pool} from "../Pool";
 import {CommandConst} from "./CommandConst"
 import {inject} from "../Injector/InjectDecorator";
@@ -17,7 +17,7 @@ namespace ioc {
      */
     export class CommandBinder extends Binder implements ICommandBinder {
         //注入绑定器
-        @inject(__IC_InjectBinder)
+        @inject(NInjectBinder)
         public injectBinder: IInjectBinder;
 
         //指令池
@@ -115,7 +115,7 @@ namespace ioc {
                 if (command) {
                     //检查是否已经清理
                     if (command.isClean) {
-                        this.injectBinder.getInjector().inject(command, null);
+                        this.injectBinder.getInjector().inject(command, false);
                         command.deploy();
                     }
                 } else {
@@ -126,9 +126,9 @@ namespace ioc {
                 }
                 return command;
             } else {
-                this.injectBinder.bind(__IC_Command).to(type);
-                let command: ICommand = this.injectBinder.getInstance(__IC_Command, null);
-                this.injectBinder.unbind(__IC_Command, null);
+                this.injectBinder.bind(NCommand).to(type);
+                let command: ICommand = this.injectBinder.getInstance(NCommand, null);
+                this.injectBinder.unbind(NCommand, null);
                 return command;
             }
         }

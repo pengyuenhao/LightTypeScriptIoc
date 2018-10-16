@@ -1,20 +1,20 @@
 /* import { IConstructorName } from "../IocConst"
-import { __IC_Signal , Signal, ISignal } from "./Signal" */
+import { NSignal , Signal, ISignal } from "./Signal" */
 var ioc;
 (function (ioc) {
-    var __IC_SignalManager = /** @class */ (function () {
-        function __IC_SignalManager() {
+    var NSignalManager = /** @class */ (function () {
+        function NSignalManager() {
         }
-        Object.defineProperty(__IC_SignalManager.prototype, "constructorName", {
+        Object.defineProperty(NSignalManager.prototype, "constructorName", {
             get: function () {
                 return "ISignalManager";
             },
             enumerable: true,
             configurable: true
         });
-        return __IC_SignalManager;
+        return NSignalManager;
     }());
-    ioc.__IC_SignalManager = __IC_SignalManager;
+    ioc.NSignalManager = NSignalManager;
     var SignalManager = /** @class */ (function () {
         function SignalManager() {
             //维护一个信号指令映射表，注意不再使用的信号应该及时释放掉

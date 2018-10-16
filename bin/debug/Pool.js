@@ -35,10 +35,10 @@ var ioc;
         /// When a dynamic pool inflates, double the size of the pool
         PoolInflationType[PoolInflationType["DOUBLE"] = 1] = "DOUBLE";
     })(PoolInflationType = ioc.PoolInflationType || (ioc.PoolInflationType = {}));
-    var __IC_InstanceProvider = /** @class */ (function () {
-        function __IC_InstanceProvider() {
+    var NInstanceProvider = /** @class */ (function () {
+        function NInstanceProvider() {
         }
-        Object.defineProperty(__IC_InstanceProvider.prototype, "constructorName", {
+        Object.defineProperty(NInstanceProvider.prototype, "constructorName", {
             //getInstance<T>() : T{return;} 
             get: function () {
                 return "IInstanceProvider";
@@ -46,9 +46,9 @@ var ioc;
             enumerable: true,
             configurable: true
         });
-        return __IC_InstanceProvider;
+        return NInstanceProvider;
     }());
-    ioc.__IC_InstanceProvider = __IC_InstanceProvider;
+    ioc.NInstanceProvider = NInstanceProvider;
     var Pool = /** @class */ (function () {
         function Pool() {
             /// Stack of instances still in the Pool.
@@ -210,7 +210,7 @@ var ioc;
             }
         };
         __decorate([
-            ioc.inject(__IC_InstanceProvider)
+            ioc.inject(NInstanceProvider)
         ], Pool.prototype, "instanceProvider", void 0);
         return Pool;
     }());

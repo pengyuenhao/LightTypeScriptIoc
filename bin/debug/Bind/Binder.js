@@ -4,19 +4,19 @@ import { BindingConst } from "./BindConst"; */
 //export namespace ioc{
 var ioc;
 (function (ioc) {
-    var __IC_Binder = /** @class */ (function () {
-        function __IC_Binder() {
+    var NBinder = /** @class */ (function () {
+        function NBinder() {
         }
-        Object.defineProperty(__IC_Binder.prototype, "constructorName", {
+        Object.defineProperty(NBinder.prototype, "constructorName", {
             get: function () {
                 return "IBinder";
             },
             enumerable: true,
             configurable: true
         });
-        return __IC_Binder;
+        return NBinder;
     }());
-    ioc.__IC_Binder = __IC_Binder;
+    ioc.NBinder = NBinder;
     var Binder = /** @class */ (function () {
         //绑定状态白名单
         //protected _bindingWhitelist : Array<object> ;

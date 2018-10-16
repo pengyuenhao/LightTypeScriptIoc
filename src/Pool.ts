@@ -62,7 +62,7 @@ namespace ioc {
         /// ex. `injectionBinder.Get(typeof(ISomeInterface));`
         getInstance(key: object): object;
     }
-    export class __IC_InstanceProvider implements IConstructorName {
+    export class NInstanceProvider implements IConstructorName {
         //getInstance<T>() : T{return;} 
         get constructorName() {
             return "IInstanceProvider";
@@ -144,7 +144,7 @@ namespace ioc {
     }
     export class Pool implements IPool, IPoolable {
 
-        @inject(__IC_InstanceProvider)
+        @inject(NInstanceProvider)
         public instanceProvider: IInstanceProvider
 
         /// Stack of instances still in the Pool.

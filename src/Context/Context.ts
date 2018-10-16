@@ -1,8 +1,8 @@
 /* import {IRoot} from "./IRoot"
-import {__IC_InjectBinder,InjectBinder, IInjectBinder} from "../Injector/InjectBinder";
+import {NInjectBinder,InjectBinder, IInjectBinder} from "../Injector/InjectBinder";
 import {CommandBinder , SignalCommandBinder } from "../Command/CommandBinder";
 import {IocError, IConstructorName} from "../IocConst"
-import { __IC_CommandBinder } from "../Command/ICommandBinder"; */
+import { NCommandBinder } from "../Command/ICommandBinder"; */
 namespace ioc {
 
     export interface IContext {
@@ -18,7 +18,7 @@ namespace ioc {
         //共用绑定器
         crossContextBinder: IInjectBinder;
     }
-    export class __IC_Context implements IConstructorName {
+    export class NContext implements IConstructorName {
         get constructorName() {
             return "IContext";
         }
@@ -61,7 +61,7 @@ namespace ioc {
             return this.root;
         }
 
-        constructor(root: any) {
+        constructor(root: IRoot) {
             if (Context.firstContext == null || Context.firstContext.getRoot() == null) {
                 Context.firstContext = this;
                 this.crossContextBinder = this.injectBinder;
@@ -88,8 +88,11 @@ namespace ioc {
                         childContext.crossContextBinder = null;
                     } */
         }
-
-        public setRoot(root: any): IContext {
+        /**
+         * 设置根节点，只有构造类时可以指定根节点
+         * @param root 根节点
+         */
+        private setRoot(root: IRoot): IContext {
             this.root = root;
             return this;
         }
@@ -116,7 +119,7 @@ namespace ioc {
          */
         protected instantiateCore() {
             //实例化信号绑定器
-            this._commandBinder = this.injectBinder.getInstance(__IC_CommandBinder, null);
+            this._commandBinder = this.injectBinder.getInstance(NCommandBinder, null);
         }
         protected mapBindings() {
 
@@ -126,9 +129,13 @@ namespace ioc {
         }
         protected addCore() {
             //注入注入绑定器
-            this.injectBinder.bind(__IC_InjectBinder).toValue(this.injectBinder);
+            this.injectBinder.bind(NInjectBinder).toValue(this.injectBinder);
             //注入信号绑定器
-            this.injectBinder.bind(__IC_CommandBinder).to(SignalCommandBinder).toSingleton();
+            this.injectBinder.bind(NCommandBinder).to(SignalCommandBinder).toSingleton();
+            //绑定环境容器
+            this.injectBinder.bind(CommonEnum.Context).toValue(this);
+            //绑定根节点
+            this.injectBinder.bind(CommonEnum.Root).toValue(this.root);
         }
 
     }

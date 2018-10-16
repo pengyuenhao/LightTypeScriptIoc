@@ -1,10 +1,10 @@
 /* import {IocError, IConstructorName} from "../IocConst" */
 var ioc;
 (function (ioc) {
-    var __IC_Signal = /** @class */ (function () {
-        function __IC_Signal() {
+    var NSignal = /** @class */ (function () {
+        function NSignal() {
         }
-        Object.defineProperty(__IC_Signal.prototype, "constructorName", {
+        Object.defineProperty(NSignal.prototype, "constructorName", {
             get: function () {
                 return "ISignal";
             },
@@ -12,9 +12,9 @@ var ioc;
             configurable: true
         });
         ;
-        return __IC_Signal;
+        return NSignal;
     }());
-    ioc.__IC_Signal = __IC_Signal;
+    ioc.NSignal = NSignal;
     var Signal = /** @class */ (function () {
         function Signal() {
             //回调监听

@@ -88,7 +88,7 @@ namespace ioc {
             return target;
         }
         //注入目标中所有被@Inject标记的属性
-        public inject(target: object, attemptConstructorInjection: boolean): any {
+        public inject(target: object, attemptConstructorInjection?: boolean): any {
             if (!this.binder || !target) throw new Error("Attempt to inject into Injector without a Binder or null instance");
             //排除一些不能被注入的类型
             let type: any = typeof target;
@@ -140,15 +140,9 @@ namespace ioc {
             if (binding.getBindingType() === InjectConst.BindingType.VALUE) {
                 //如果需要注入
                 if (binding.isInject()) {
-                    //if(Binding.isConstructor(binding.value))console.info("[对值(构造函数))]"+binding.value.constructor.name + "[进行注入]");
-                    //else console.info("[对值(对象)]"+binding.value.__proto__.constructor + "[进行注入]");
-
                     let injv = this.inject(binding.value, false);
+                    //值类型完成一次注入后不再进行注入
                     binding.toInject(false);
-
-                    //if(binding.key.name)console.info("[绑定状态]"+binding.key.name+"[完成注入]"+binding.isInject);
-                    //else console.info("[绑定状态]"+binding.key+"[完成注入]"+binding.isInject);
-
                     return injv;
                 } else {
                     return binding.value;

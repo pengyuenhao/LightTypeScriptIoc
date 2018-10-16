@@ -1,23 +1,23 @@
 /* import {IRoot} from "./IRoot"
-import {__IC_InjectBinder,InjectBinder, IInjectBinder} from "../Injector/InjectBinder";
+import {NInjectBinder,InjectBinder, IInjectBinder} from "../Injector/InjectBinder";
 import {CommandBinder , SignalCommandBinder } from "../Command/CommandBinder";
 import {IocError, IConstructorName} from "../IocConst"
-import { __IC_CommandBinder } from "../Command/ICommandBinder"; */
+import { NCommandBinder } from "../Command/ICommandBinder"; */
 var ioc;
 (function (ioc) {
-    var __IC_Context = /** @class */ (function () {
-        function __IC_Context() {
+    var NContext = /** @class */ (function () {
+        function NContext() {
         }
-        Object.defineProperty(__IC_Context.prototype, "constructorName", {
+        Object.defineProperty(NContext.prototype, "constructorName", {
             get: function () {
                 return "IContext";
             },
             enumerable: true,
             configurable: true
         });
-        return __IC_Context;
+        return NContext;
     }());
-    ioc.__IC_Context = __IC_Context;
+    ioc.NContext = NContext;
     var Context = /** @class */ (function () {
         function Context(root) {
             if (Context.firstContext == null || Context.firstContext.getRoot() == null) {
@@ -86,6 +86,10 @@ var ioc;
                         childContext.crossContextBinder = null;
                     } */
         };
+        /**
+         * 设置根节点，只有构造类时可以指定根节点
+         * @param root 根节点
+         */
         Context.prototype.setRoot = function (root) {
             this.root = root;
             return this;
@@ -112,7 +116,7 @@ var ioc;
          */
         Context.prototype.instantiateCore = function () {
             //实例化信号绑定器
-            this._commandBinder = this.injectBinder.getInstance(ioc.__IC_CommandBinder, null);
+            this._commandBinder = this.injectBinder.getInstance(ioc.NCommandBinder, null);
         };
         Context.prototype.mapBindings = function () {
         };
@@ -120,9 +124,13 @@ var ioc;
         };
         Context.prototype.addCore = function () {
             //注入注入绑定器
-            this.injectBinder.bind(ioc.__IC_InjectBinder).toValue(this.injectBinder);
+            this.injectBinder.bind(ioc.NInjectBinder).toValue(this.injectBinder);
             //注入信号绑定器
-            this.injectBinder.bind(ioc.__IC_CommandBinder).to(ioc.SignalCommandBinder).toSingleton();
+            this.injectBinder.bind(ioc.NCommandBinder).to(ioc.SignalCommandBinder).toSingleton();
+            //绑定环境容器
+            this.injectBinder.bind(ioc.CommonEnum.Context).toValue(this);
+            //绑定根节点
+            this.injectBinder.bind(ioc.CommonEnum.Root).toValue(this.root);
         };
         return Context;
     }());

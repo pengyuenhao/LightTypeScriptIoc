@@ -2,18 +2,18 @@
 import { IConstructorName } from "../IocConst"; */
 var ioc;
 (function (ioc) {
-    var __IC_Root = /** @class */ (function () {
-        function __IC_Root() {
+    var NRoot = /** @class */ (function () {
+        function NRoot() {
         }
-        Object.defineProperty(__IC_Root.prototype, "constructorName", {
+        Object.defineProperty(NRoot.prototype, "constructorName", {
             get: function () {
                 return "IRoot";
             },
             enumerable: true,
             configurable: true
         });
-        return __IC_Root;
+        return NRoot;
     }());
-    ioc.__IC_Root = __IC_Root;
+    ioc.NRoot = NRoot;
 })(ioc || (ioc = {}));
 //# sourceMappingURL=IRoot.js.map

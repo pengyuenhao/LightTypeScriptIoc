@@ -1,19 +1,19 @@
 /* import { IConstructorName } from "../IocConst"; */
 var ioc;
 (function (ioc) {
-    var __IC_Binding = /** @class */ (function () {
-        function __IC_Binding() {
+    var NBinding = /** @class */ (function () {
+        function NBinding() {
         }
-        Object.defineProperty(__IC_Binding.prototype, "constructorName", {
+        Object.defineProperty(NBinding.prototype, "constructorName", {
             get: function () {
                 return "IBinding";
             },
             enumerable: true,
             configurable: true
         });
-        return __IC_Binding;
+        return NBinding;
     }());
-    ioc.__IC_Binding = __IC_Binding;
+    ioc.NBinding = NBinding;
     var Binding = /** @class */ (function () {
         function Binding(resolver) {
             this._resolver = resolver;

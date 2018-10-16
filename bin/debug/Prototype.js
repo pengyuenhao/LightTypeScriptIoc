@@ -51,8 +51,8 @@ var ioc;
                         //搜索到基类一层
                         if (constructor_1 === Object)
                             break;
-                        //排除以__IC__开头模拟接口的临时替代类型
-                        if (!constructor_1.name.startsWith("__IC_")) {
+                        //排除以N_开头模拟接口的临时替代类型
+                        if (!constructor_1.name.startsWith("N")) {
                             extendsList.push(constructor_1);
                             types.push(constructor_1);
                             //为每一个类都添加继承关系

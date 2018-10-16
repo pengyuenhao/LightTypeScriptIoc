@@ -99,6 +99,14 @@ var ioc;
 //# sourceMappingURL=Stack.js.map
 var ioc;
 (function (ioc) {
+    /**
+     * 通用枚举类型
+    */
+    var CommonEnum;
+    (function (CommonEnum) {
+        CommonEnum["Context"] = "Context";
+        CommonEnum["Root"] = "Root";
+    })(CommonEnum = ioc.CommonEnum || (ioc.CommonEnum = {}));
     var IocError;
     (function (IocError) {
         IocError.IC_ERROR = "can't implement class that is only as interface";
@@ -164,8 +172,8 @@ var ioc;
                         //搜索到基类一层
                         if (constructor_1 === Object)
                             break;
-                        //排除以__IC__开头模拟接口的临时替代类型
-                        if (!constructor_1.name.startsWith("__IC_")) {
+                        //排除以N_开头模拟接口的临时替代类型
+                        if (!constructor_1.name.startsWith("N")) {
                             extendsList.push(constructor_1);
                             types.push(constructor_1);
                             //为每一个类都添加继承关系
@@ -220,19 +228,19 @@ var ioc;
 /* import { IConstructorName } from "../IocConst"; */
 var ioc;
 (function (ioc) {
-    var __IC_Binding = /** @class */ (function () {
-        function __IC_Binding() {
+    var NBinding = /** @class */ (function () {
+        function NBinding() {
         }
-        Object.defineProperty(__IC_Binding.prototype, "constructorName", {
+        Object.defineProperty(NBinding.prototype, "constructorName", {
             get: function () {
                 return "IBinding";
             },
             enumerable: true,
             configurable: true
         });
-        return __IC_Binding;
+        return NBinding;
     }());
-    ioc.__IC_Binding = __IC_Binding;
+    ioc.NBinding = NBinding;
     var Binding = /** @class */ (function () {
         function Binding(resolver) {
             this._resolver = resolver;
@@ -340,19 +348,19 @@ import { BindingConst } from "./BindConst"; */
 //export namespace ioc{
 var ioc;
 (function (ioc) {
-    var __IC_Binder = /** @class */ (function () {
-        function __IC_Binder() {
+    var NBinder = /** @class */ (function () {
+        function NBinder() {
         }
-        Object.defineProperty(__IC_Binder.prototype, "constructorName", {
+        Object.defineProperty(NBinder.prototype, "constructorName", {
             get: function () {
                 return "IBinder";
             },
             enumerable: true,
             configurable: true
         });
-        return __IC_Binder;
+        return NBinder;
     }());
-    ioc.__IC_Binder = __IC_Binder;
+    ioc.NBinder = NBinder;
     var Binder = /** @class */ (function () {
         //绑定状态白名单
         //protected _bindingWhitelist : Array<object> ;
@@ -990,12 +998,9 @@ var ioc;
             if (binding.getBindingType() === "Value" /* VALUE */) {
                 //如果需要注入
                 if (binding.isInject()) {
-                    //if(Binding.isConstructor(binding.value))console.info("[对值(构造函数))]"+binding.value.constructor.name + "[进行注入]");
-                    //else console.info("[对值(对象)]"+binding.value.__proto__.constructor + "[进行注入]");
                     var injv = this.inject(binding.value, false);
+                    //值类型完成一次注入后不再进行注入
                     binding.toInject(false);
-                    //if(binding.key.name)console.info("[绑定状态]"+binding.key.name+"[完成注入]"+binding.isInject);
-                    //else console.info("[绑定状态]"+binding.key+"[完成注入]"+binding.isInject);
                     return injv;
                 }
                 else {
@@ -1151,19 +1156,19 @@ var ioc;
 (function (ioc) {
     //全局注入数据绑定器
     var ClassBinder = ioc.DecoratorConst.DECORATOR_CLASS_BINDER;
-    var __IC_InjectBinder = /** @class */ (function () {
-        function __IC_InjectBinder() {
+    var NInjectBinder = /** @class */ (function () {
+        function NInjectBinder() {
         }
-        Object.defineProperty(__IC_InjectBinder.prototype, "constructorName", {
+        Object.defineProperty(NInjectBinder.prototype, "constructorName", {
             get: function () {
                 return "IInjectBinder";
             },
             enumerable: true,
             configurable: true
         });
-        return __IC_InjectBinder;
+        return NInjectBinder;
     }());
-    ioc.__IC_InjectBinder = __IC_InjectBinder;
+    ioc.NInjectBinder = NInjectBinder;
     var InjectBinder = /** @class */ (function (_super) {
         __extends(InjectBinder, _super);
         function InjectBinder() {
@@ -1195,6 +1200,14 @@ var ioc;
             //console.info("[尝试注入]"+Binding.checkAbstract(binding.key));
             this._injector.tryInject(binding, instance);
             return instance;
+        };
+        /**
+         * 调用注入者的注入方法对目标对象进行注入
+         * @param target
+         * @param attemptConstructorInjection
+         */
+        InjectBinder.prototype.inject = function (target, attemptConstructorInjection) {
+            this.getInjector().inject(target);
         };
         //重写获取绑定状态方法
         InjectBinder.prototype.getBinding = function (key, name) {
@@ -1322,10 +1335,10 @@ var ioc;
         /// When a dynamic pool inflates, double the size of the pool
         PoolInflationType[PoolInflationType["DOUBLE"] = 1] = "DOUBLE";
     })(PoolInflationType = ioc.PoolInflationType || (ioc.PoolInflationType = {}));
-    var __IC_InstanceProvider = /** @class */ (function () {
-        function __IC_InstanceProvider() {
+    var NInstanceProvider = /** @class */ (function () {
+        function NInstanceProvider() {
         }
-        Object.defineProperty(__IC_InstanceProvider.prototype, "constructorName", {
+        Object.defineProperty(NInstanceProvider.prototype, "constructorName", {
             //getInstance<T>() : T{return;} 
             get: function () {
                 return "IInstanceProvider";
@@ -1333,9 +1346,9 @@ var ioc;
             enumerable: true,
             configurable: true
         });
-        return __IC_InstanceProvider;
+        return NInstanceProvider;
     }());
-    ioc.__IC_InstanceProvider = __IC_InstanceProvider;
+    ioc.NInstanceProvider = NInstanceProvider;
     var Pool = /** @class */ (function () {
         function Pool() {
             /// Stack of instances still in the Pool.
@@ -1497,7 +1510,7 @@ var ioc;
             }
         };
         __decorate([
-            ioc.inject(__IC_InstanceProvider)
+            ioc.inject(NInstanceProvider)
         ], Pool.prototype, "instanceProvider", void 0);
         return Pool;
     }());
@@ -1510,19 +1523,19 @@ import { Binder } from "../Bind/Binder";
 import { IConstructorName } from "../IocConst"; */
 var ioc;
 (function (ioc) {
-    var __IC_CommandBinder = /** @class */ (function () {
-        function __IC_CommandBinder() {
+    var NCommandBinder = /** @class */ (function () {
+        function NCommandBinder() {
         }
-        Object.defineProperty(__IC_CommandBinder.prototype, "constructorName", {
+        Object.defineProperty(NCommandBinder.prototype, "constructorName", {
             get: function () {
                 return "ICommandBinder";
             },
             enumerable: true,
             configurable: true
         });
-        return __IC_CommandBinder;
+        return NCommandBinder;
     }());
-    ioc.__IC_CommandBinder = __IC_CommandBinder;
+    ioc.NCommandBinder = NCommandBinder;
 })(ioc || (ioc = {}));
 //# sourceMappingURL=ICommandBinder.js.map
 var ioc;
@@ -1590,11 +1603,11 @@ var ioc;
 })(ioc || (ioc = {}));
 //# sourceMappingURL=CommandBinding.js.map
 /* import {IBinding,Binding} from "../Bind/Binding"
-import {__IC_InjectBinder,IInjectBinder} from "../Injector/InjectBinder";
+import {NInjectBinder,IInjectBinder} from "../Injector/InjectBinder";
 import {CommandBinding} from "./CommandBinding";
 import {ISignal} from "../Signal/Signal"
 import {InjectBinding} from "../Injector/InjectBinding";
-import {ICommand,__IC_Command} from "./Command";
+import {ICommand,NCommand} from "./Command";
 import {Pool} from "../Pool";
 import {CommandConst} from "./CommandConst"
 import {inject} from "../Injector/InjectDecorator";
@@ -1719,7 +1732,7 @@ var ioc;
                 if (command) {
                     //检查是否已经清理
                     if (command.isClean) {
-                        this.injectBinder.getInjector().inject(command, null);
+                        this.injectBinder.getInjector().inject(command, false);
                         command.deploy();
                     }
                 }
@@ -1732,9 +1745,9 @@ var ioc;
                 return command;
             }
             else {
-                this.injectBinder.bind(ioc.__IC_Command).to(type);
-                var command = this.injectBinder.getInstance(ioc.__IC_Command, null);
-                this.injectBinder.unbind(ioc.__IC_Command, null);
+                this.injectBinder.bind(ioc.NCommand).to(type);
+                var command = this.injectBinder.getInstance(ioc.NCommand, null);
+                this.injectBinder.unbind(ioc.NCommand, null);
                 return command;
             }
         };
@@ -1827,7 +1840,7 @@ var ioc;
             }
         };
         __decorate([
-            ioc.inject(ioc.__IC_InjectBinder)
+            ioc.inject(ioc.NInjectBinder)
         ], CommandBinder.prototype, "injectBinder", void 0);
         return CommandBinder;
     }(ioc.Binder));
@@ -1955,26 +1968,26 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-/* import { ICommandBinder, __IC_CommandBinder } from "./ICommandBinder";
-import { __IC_InjectBinder, IInjectBinder } from "../Injector/InjectBinder";
+/* import { ICommandBinder, NCommandBinder } from "./ICommandBinder";
+import { NInjectBinder, IInjectBinder } from "../Injector/InjectBinder";
 import { inject } from "../Injector/InjectDecorator";
 import { IConstructorName } from "../IocConst";
  */
 var ioc;
 (function (ioc) {
-    var __IC_Command = /** @class */ (function () {
-        function __IC_Command() {
+    var NCommand = /** @class */ (function () {
+        function NCommand() {
         }
-        Object.defineProperty(__IC_Command.prototype, "constructorName", {
+        Object.defineProperty(NCommand.prototype, "constructorName", {
             get: function () {
                 return "ICommand";
             },
             enumerable: true,
             configurable: true
         });
-        return __IC_Command;
+        return NCommand;
     }());
-    ioc.__IC_Command = __IC_Command;
+    ioc.NCommand = NCommand;
     var Command = /** @class */ (function () {
         function Command() {
             this._clean = false;
@@ -2021,10 +2034,10 @@ var ioc;
             }
         };
         __decorate([
-            ioc.inject(ioc.__IC_InjectBinder)
+            ioc.inject(ioc.NInjectBinder)
         ], Command.prototype, "injectBinder", void 0);
         __decorate([
-            ioc.inject(ioc.__IC_CommandBinder)
+            ioc.inject(ioc.NCommandBinder)
         ], Command.prototype, "commandBinder", void 0);
         return Command;
     }());
@@ -2032,25 +2045,25 @@ var ioc;
 })(ioc || (ioc = {}));
 //# sourceMappingURL=Command.js.map
 /* import {IRoot} from "./IRoot"
-import {__IC_InjectBinder,InjectBinder, IInjectBinder} from "../Injector/InjectBinder";
+import {NInjectBinder,InjectBinder, IInjectBinder} from "../Injector/InjectBinder";
 import {CommandBinder , SignalCommandBinder } from "../Command/CommandBinder";
 import {IocError, IConstructorName} from "../IocConst"
-import { __IC_CommandBinder } from "../Command/ICommandBinder"; */
+import { NCommandBinder } from "../Command/ICommandBinder"; */
 var ioc;
 (function (ioc) {
-    var __IC_Context = /** @class */ (function () {
-        function __IC_Context() {
+    var NContext = /** @class */ (function () {
+        function NContext() {
         }
-        Object.defineProperty(__IC_Context.prototype, "constructorName", {
+        Object.defineProperty(NContext.prototype, "constructorName", {
             get: function () {
                 return "IContext";
             },
             enumerable: true,
             configurable: true
         });
-        return __IC_Context;
+        return NContext;
     }());
-    ioc.__IC_Context = __IC_Context;
+    ioc.NContext = NContext;
     var Context = /** @class */ (function () {
         function Context(root) {
             if (Context.firstContext == null || Context.firstContext.getRoot() == null) {
@@ -2119,6 +2132,10 @@ var ioc;
                         childContext.crossContextBinder = null;
                     } */
         };
+        /**
+         * 设置根节点，只有构造类时可以指定根节点
+         * @param root 根节点
+         */
         Context.prototype.setRoot = function (root) {
             this.root = root;
             return this;
@@ -2145,7 +2162,7 @@ var ioc;
          */
         Context.prototype.instantiateCore = function () {
             //实例化信号绑定器
-            this._commandBinder = this.injectBinder.getInstance(ioc.__IC_CommandBinder, null);
+            this._commandBinder = this.injectBinder.getInstance(ioc.NCommandBinder, null);
         };
         Context.prototype.mapBindings = function () {
         };
@@ -2153,9 +2170,13 @@ var ioc;
         };
         Context.prototype.addCore = function () {
             //注入注入绑定器
-            this.injectBinder.bind(ioc.__IC_InjectBinder).toValue(this.injectBinder);
+            this.injectBinder.bind(ioc.NInjectBinder).toValue(this.injectBinder);
             //注入信号绑定器
-            this.injectBinder.bind(ioc.__IC_CommandBinder).to(ioc.SignalCommandBinder).toSingleton();
+            this.injectBinder.bind(ioc.NCommandBinder).to(ioc.SignalCommandBinder).toSingleton();
+            //绑定环境容器
+            this.injectBinder.bind(ioc.CommonEnum.Context).toValue(this);
+            //绑定根节点
+            this.injectBinder.bind(ioc.CommonEnum.Root).toValue(this.root);
         };
         return Context;
     }());
@@ -2166,19 +2187,19 @@ var ioc;
 import { IConstructorName } from "../IocConst"; */
 var ioc;
 (function (ioc) {
-    var __IC_Root = /** @class */ (function () {
-        function __IC_Root() {
+    var NRoot = /** @class */ (function () {
+        function NRoot() {
         }
-        Object.defineProperty(__IC_Root.prototype, "constructorName", {
+        Object.defineProperty(NRoot.prototype, "constructorName", {
             get: function () {
                 return "IRoot";
             },
             enumerable: true,
             configurable: true
         });
-        return __IC_Root;
+        return NRoot;
     }());
-    ioc.__IC_Root = __IC_Root;
+    ioc.NRoot = NRoot;
 })(ioc || (ioc = {}));
 //# sourceMappingURL=IRoot.js.map
 /* import { DecoratorClassBinding } from "./DecoratorClassBinding"; */
@@ -2209,10 +2230,10 @@ var ioc;
 /* import {IocError, IConstructorName} from "../IocConst" */
 var ioc;
 (function (ioc) {
-    var __IC_Signal = /** @class */ (function () {
-        function __IC_Signal() {
+    var NSignal = /** @class */ (function () {
+        function NSignal() {
         }
-        Object.defineProperty(__IC_Signal.prototype, "constructorName", {
+        Object.defineProperty(NSignal.prototype, "constructorName", {
             get: function () {
                 return "ISignal";
             },
@@ -2220,9 +2241,9 @@ var ioc;
             configurable: true
         });
         ;
-        return __IC_Signal;
+        return NSignal;
     }());
-    ioc.__IC_Signal = __IC_Signal;
+    ioc.NSignal = NSignal;
     var Signal = /** @class */ (function () {
         function Signal() {
             //回调监听
@@ -2291,22 +2312,22 @@ var ioc;
 })(ioc || (ioc = {}));
 //# sourceMappingURL=Signal.js.map
 /* import { IConstructorName } from "../IocConst"
-import { __IC_Signal , Signal, ISignal } from "./Signal" */
+import { NSignal , Signal, ISignal } from "./Signal" */
 var ioc;
 (function (ioc) {
-    var __IC_SignalManager = /** @class */ (function () {
-        function __IC_SignalManager() {
+    var NSignalManager = /** @class */ (function () {
+        function NSignalManager() {
         }
-        Object.defineProperty(__IC_SignalManager.prototype, "constructorName", {
+        Object.defineProperty(NSignalManager.prototype, "constructorName", {
             get: function () {
                 return "ISignalManager";
             },
             enumerable: true,
             configurable: true
         });
-        return __IC_SignalManager;
+        return NSignalManager;
     }());
-    ioc.__IC_SignalManager = __IC_SignalManager;
+    ioc.NSignalManager = NSignalManager;
     var SignalManager = /** @class */ (function () {
         function SignalManager() {
             //维护一个信号指令映射表，注意不再使用的信号应该及时释放掉
