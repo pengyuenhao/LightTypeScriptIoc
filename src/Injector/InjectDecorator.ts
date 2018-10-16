@@ -1,7 +1,6 @@
 /* import {DecoratorConst} from "../Decorator/DecoratorConst"
 import { Binding } from "../Bind/Binding"; */
 namespace ioc {
-
     //全局注入数据绑定器
     const ClassBinder = DecoratorConst.DECORATOR_CLASS_BINDER;
     /**
