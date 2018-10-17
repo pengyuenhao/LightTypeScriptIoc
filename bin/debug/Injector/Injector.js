@@ -143,12 +143,9 @@ var ioc;
             if (binding.getBindingType() === "Value" /* VALUE */) {
                 //如果需要注入
                 if (binding.isInject()) {
-                    //if(Binding.isConstructor(binding.value))console.info("[对值(构造函数))]"+binding.value.constructor.name + "[进行注入]");
-                    //else console.info("[对值(对象)]"+binding.value.__proto__.constructor + "[进行注入]");
                     var injv = this.inject(binding.value, false);
+                    //值类型完成一次注入后不再进行注入
                     binding.toInject(false);
-                    //if(binding.key.name)console.info("[绑定状态]"+binding.key.name+"[完成注入]"+binding.isInject);
-                    //else console.info("[绑定状态]"+binding.key+"[完成注入]"+binding.isInject);
                     return injv;
                 }
                 else {

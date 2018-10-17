@@ -1,5 +1,5 @@
-/* import { ICommandBinder, __IC_CommandBinder } from "./ICommandBinder";
-import { __IC_InjectBinder, IInjectBinder } from "../Injector/InjectBinder";
+/* import { ICommandBinder, NCommandBinder } from "./ICommandBinder";
+import { NInjectBinder, IInjectBinder } from "../Injector/InjectBinder";
 import { inject } from "../Injector/InjectDecorator";
 import { IConstructorName } from "../IocConst";
  */
@@ -22,17 +22,17 @@ namespace ioc {
         //释放被异步操作锁定的指令
         release();
     }
-    export class __IC_Command implements IConstructorName {
+    export class NCommand implements IConstructorName {
         get constructorName() {
             return "ICommand";
         }
     }
     export class Command implements ICommand {
         // The InjectionBinder for this Context
-        @inject(__IC_InjectBinder)
+        @inject(NInjectBinder)
         public injectBinder: IInjectBinder;
         // Back reference to the CommandBinder that instantiated this Commmand
-        @inject(__IC_CommandBinder)
+        @inject(NCommandBinder)
         public commandBinder: ICommandBinder;
         public sequenceId;
         public data;

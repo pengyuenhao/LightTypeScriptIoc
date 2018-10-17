@@ -10,7 +10,7 @@ namespace ioc {
         /// Returns a List<System.Type> representing the Types bindable to this Signal
         getTypes(): object[];
     }
-    export class __IC_Signal implements IConstructorName {
+    export class NSignal implements IConstructorName {
         get constructorName() {
             return "ISignal";
         };

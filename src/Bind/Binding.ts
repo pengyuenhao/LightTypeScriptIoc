@@ -9,7 +9,7 @@ namespace ioc {
         to(v: any): IBinding;
         toName(n: any): IBinding;
     }
-    export class __IC_Binding implements IConstructorName {
+    export class NBinding implements IConstructorName {
         get constructorName() {
             return "IBinding";
         }

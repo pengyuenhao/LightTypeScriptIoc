@@ -22,19 +22,19 @@ var ioc;
 (function (ioc) {
     //全局注入数据绑定器
     var ClassBinder = ioc.DecoratorConst.DECORATOR_CLASS_BINDER;
-    var __IC_InjectBinder = /** @class */ (function () {
-        function __IC_InjectBinder() {
+    var NInjectBinder = /** @class */ (function () {
+        function NInjectBinder() {
         }
-        Object.defineProperty(__IC_InjectBinder.prototype, "constructorName", {
+        Object.defineProperty(NInjectBinder.prototype, "constructorName", {
             get: function () {
                 return "IInjectBinder";
             },
             enumerable: true,
             configurable: true
         });
-        return __IC_InjectBinder;
+        return NInjectBinder;
     }());
-    ioc.__IC_InjectBinder = __IC_InjectBinder;
+    ioc.NInjectBinder = NInjectBinder;
     var InjectBinder = /** @class */ (function (_super) {
         __extends(InjectBinder, _super);
         function InjectBinder() {
@@ -66,6 +66,14 @@ var ioc;
             //console.info("[尝试注入]"+Binding.checkAbstract(binding.key));
             this._injector.tryInject(binding, instance);
             return instance;
+        };
+        /**
+         * 调用注入者的注入方法对目标对象进行注入
+         * @param target
+         * @param attemptConstructorInjection
+         */
+        InjectBinder.prototype.inject = function (target, attemptConstructorInjection) {
+            this.getInjector().inject(target);
         };
         //重写获取绑定状态方法
         InjectBinder.prototype.getBinding = function (key, name) {

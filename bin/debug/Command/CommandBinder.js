@@ -1,9 +1,9 @@
 /* import {IBinding,Binding} from "../Bind/Binding"
-import {__IC_InjectBinder,IInjectBinder} from "../Injector/InjectBinder";
+import {NInjectBinder,IInjectBinder} from "../Injector/InjectBinder";
 import {CommandBinding} from "./CommandBinding";
 import {ISignal} from "../Signal/Signal"
 import {InjectBinding} from "../Injector/InjectBinding";
-import {ICommand,__IC_Command} from "./Command";
+import {ICommand,NCommand} from "./Command";
 import {Pool} from "../Pool";
 import {CommandConst} from "./CommandConst"
 import {inject} from "../Injector/InjectDecorator";
@@ -128,7 +128,7 @@ var ioc;
                 if (command) {
                     //检查是否已经清理
                     if (command.isClean) {
-                        this.injectBinder.getInjector().inject(command, null);
+                        this.injectBinder.getInjector().inject(command, false);
                         command.deploy();
                     }
                 }
@@ -141,9 +141,9 @@ var ioc;
                 return command;
             }
             else {
-                this.injectBinder.bind(ioc.__IC_Command).to(type);
-                var command = this.injectBinder.getInstance(ioc.__IC_Command, null);
-                this.injectBinder.unbind(ioc.__IC_Command, null);
+                this.injectBinder.bind(ioc.NCommand).to(type);
+                var command = this.injectBinder.getInstance(ioc.NCommand, null);
+                this.injectBinder.unbind(ioc.NCommand, null);
                 return command;
             }
         };
@@ -236,7 +236,7 @@ var ioc;
             }
         };
         __decorate([
-            ioc.inject(ioc.__IC_InjectBinder)
+            ioc.inject(ioc.NInjectBinder)
         ], CommandBinder.prototype, "injectBinder", void 0);
         return CommandBinder;
     }(ioc.Binder));

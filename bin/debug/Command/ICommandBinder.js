@@ -4,18 +4,18 @@ import { Binder } from "../Bind/Binder";
 import { IConstructorName } from "../IocConst"; */
 var ioc;
 (function (ioc) {
-    var __IC_CommandBinder = /** @class */ (function () {
-        function __IC_CommandBinder() {
+    var NCommandBinder = /** @class */ (function () {
+        function NCommandBinder() {
         }
-        Object.defineProperty(__IC_CommandBinder.prototype, "constructorName", {
+        Object.defineProperty(NCommandBinder.prototype, "constructorName", {
             get: function () {
                 return "ICommandBinder";
             },
             enumerable: true,
             configurable: true
         });
-        return __IC_CommandBinder;
+        return NCommandBinder;
     }());
-    ioc.__IC_CommandBinder = __IC_CommandBinder;
+    ioc.NCommandBinder = NCommandBinder;
 })(ioc || (ioc = {}));
 //# sourceMappingURL=ICommandBinder.js.map

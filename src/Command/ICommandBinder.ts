@@ -8,7 +8,7 @@ namespace ioc {
         bind(key: any): CommandBinding;
         getRawBinding(): IBinding;
     }
-    export class __IC_CommandBinder implements IConstructorName {
+    export class NCommandBinder implements IConstructorName {
         get constructorName() {
             return "ICommandBinder";
         }

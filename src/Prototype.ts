@@ -50,8 +50,8 @@ namespace ioc {
                         constructor = prototype.constructor;
                         //搜索到基类一层
                         if (constructor === Object) break;
-                        //排除以__IC__开头模拟接口的临时替代类型
-                        if (!constructor.name.startsWith("__IC_")) {
+                        //排除以N_开头模拟接口的临时替代类型
+                        if (!constructor.name.startsWith("N")) {
                             extendsList.push(constructor);
                             types.push(constructor);
                             //为每一个类都添加继承关系

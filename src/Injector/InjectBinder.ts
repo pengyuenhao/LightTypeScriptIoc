@@ -14,13 +14,14 @@ namespace ioc {
         getInjector(): Injector;
         getInstance(key, name): any;
         getBinding(key, name): InjectBinding;
+        inject(target:object,attemptConstructorInjection?:boolean);
         bind(key: any): InjectBinding;
         /**
          * 解绑所有被标记了需要解绑的状态
          */
         unbindAllMark();
     }
-    export class __IC_InjectBinder implements IConstructorName {
+    export class NInjectBinder implements IConstructorName {
         get constructorName() {
             return "IInjectBinder";
         }
@@ -54,6 +55,14 @@ namespace ioc {
             //console.info("[尝试注入]"+Binding.checkAbstract(binding.key));
             this._injector.tryInject(binding, instance);
             return instance;
+        }
+        /**
+         * 调用注入者的注入方法对目标对象进行注入
+         * @param target 
+         * @param attemptConstructorInjection 
+         */
+        public inject(target:object,attemptConstructorInjection?:boolean){
+            this.getInjector().inject(target);
         }
         //重写获取绑定状态方法
         public getBinding(key, name): InjectBinding {

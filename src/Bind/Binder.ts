@@ -13,7 +13,7 @@ namespace ioc {
         getBindingMap(key: any): Map < any, IBinding > ;
         resolveBinding(binding: IBinding, key: any);
     }
-    export class __IC_Binder implements IConstructorName {
+    export class NBinder implements IConstructorName {
         get constructorName() {
             return "IBinder";
         }

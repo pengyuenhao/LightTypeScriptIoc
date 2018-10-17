@@ -1,5 +1,5 @@
 /* import { IConstructorName } from "../IocConst"
-import { __IC_Signal , Signal, ISignal } from "./Signal" */
+import { NSignal , Signal, ISignal } from "./Signal" */
 namespace ioc {
 
     export interface ISignalManager {
@@ -7,7 +7,7 @@ namespace ioc {
         delete(symbol);
         info: string;
     }
-    export class __IC_SignalManager implements IConstructorName {
+    export class NSignalManager implements IConstructorName {
         get constructorName() {
             return "ISignalManager";
         }
